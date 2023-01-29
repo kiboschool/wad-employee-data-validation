@@ -52,9 +52,9 @@ Now that you've added validation, no more bad data will be added to the database
 3. **Delete** any rows where the data is not valid.
   - any rows where the salary is zero or less
   - any rows with a NULL or blank name, or a name with a number in it
-  - any rows with duplicate emails
   - any rows with NULL emails
   - any rows where the email is missing the `@` character
+  - any rows with duplicate emails (Hint: first find these using COUNT and GROUP BY, then delete them by their ids)
 
 In many applications, you might make an attempt to figure out how the bad data was added, and try to correct it. In this case, since it's just for practice, go ahead and delete the bad data -- that's why you made a backup!
 
@@ -62,11 +62,27 @@ In many applications, you might make an attempt to figure out how the bad data w
 
 You've added server-side validation and you've fixed the data. Now it's time to add database constraints for another level of protection for the database.
 
-1. Create a file called `add_validations.sql`
-2. In the file write ALTER TABLE statements to add constraints to the `employees` table:
+1. Create a file called `schema_with_validations.sql` to create the `new_employees` table
+2. In the file write a CREATE TABLE like in `schema.sql`, but with these constraints on the `new_employees` table:
   - make name NOT NULL
   - make email NOT NULL UNIQUE
-3. Run the `add_validations.sql` on the database to create the constraints
+3. Create the new table
+
+```sh
+sqlite3 employees.db < schema_with_validations.sql
+```
+
+SQLite does not support all of the ALTER TABLE statements, so in order to use the validations, we'll have to do a little copying.
+
+4. Copy the current employees table (the one without the constraints) to the new table. Then drop the old table, and rename the new table, so there's only one _validated_ employees table:
+
+```sql
+INSERT INTO new_employees SELECT * FROM employees;
+DROP TABLE employees;
+ALTER TABLE new_employees RENAME TO employees;
+```
+
+> Note: in a live production database, it'd be wise to do all of this table-copying in a transaction, in case something goes wrong. In a database like Postgres or MySQL, there is also more support for adding constraints, so there's less cause to copy, drop, and re-add tables.
 
 ## Bonus: Updating data
 
