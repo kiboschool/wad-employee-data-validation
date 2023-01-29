@@ -5,3 +5,12 @@
   Salary: <input type="text" name="salary"></input>
   <input type="submit" value="Add Employee"></input>
 </form>
+
+{% if errors %}
+<div style="color: red">
+  {% for key, message in errors.items() %}
+  <div> {{ key }}: {{ message }} </div>
+  {% endfor %}
+</div>
+{% endif %}
+

@@ -37,7 +37,6 @@ def db_execute(query, args=()):
 
 def create_employee(name, email, salary):
     db_execute("INSERT INTO employees (name, email, salary) VALUES (?, ?, ?);", (name, email, salary))
-    
 
 def get_employees_from_db():
     return db_query("SELECT * FROM employees")
@@ -68,5 +67,29 @@ def add_employee():
     name = request.form.get('name')
     email = request.form.get('email')
     salary = request.form.get('salary')
-    create_employee(name, email, salary)
-    return redirect('/')
+
+    errors = {}
+    # validate salary
+    if not salary.isnumeric():
+        errors["salary"] = "Salary must be a number"
+    else:
+        salary = int(salary)
+        if salary <= 0:
+            errors["salary"] = "Salary must be more than 0"
+
+    if not name:
+        errors["name"] = "Name must not be blank."
+    elif any(char.isdigit() for char in name):
+        errors["name"] = "Name cannot have numbers."
+
+    if not email:
+        errors["email"] = "Email must not be blank"
+    elif not "@" in email:
+        errors["email"] = "Email must have the @ symbol"
+    # skip uniqueness check here. allow database constraint to handle it
+
+    if errors:
+        return render_template("new_employee.html", errors=errors)
+    else:
+        create_employee(name, email, salary)
+        return redirect('/')
