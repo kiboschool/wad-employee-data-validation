@@ -1,0 +1,18 @@
+<h1>Employees index</h1>
+
+<a href="/new_employee">Add New Employee</a>
+
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>View Info</th>
+  </tr>
+  {% for employee in employees %}
+    <tr>
+      <td>{{ employee['id'] }}</td>
+      <td>{{ employee['name'] }}</td>
+      <td><a href="/employees/{{employee['id']}}">View Info</a></td>
+    </tr>
+  {% endfor %}
+</table>
